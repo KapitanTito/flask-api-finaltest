@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Test POST /submit</title>
+  <style>
+    body { font-family: sans-serif; padding: 2em; }
+    label { display: block; margin-top: 1em; }
+    input { padding: 0.4em; width: 200px; }
+    button { margin-top: 1em; padding: 0.5em 1em; }
+    pre { margin-top: 2em; background: #f4f4f4; padding: 1em; }
+  </style>
+</head>
+<body>
+  <h2>POST /submit API тест</h2>
+  <form id="postForm">
+    <label>
+      Name:
+      <input name="name" value="Kirill" required>
+    </label>
+    <label>
+      Score:
+      <input name="score" value="88" type="number" required>
+    </label>
+    <button type="submit">Send POST</button>
+  </form>
+  <pre id="result"></pre>
+  <script>
+    document.getElementById('postForm').onsubmit = async function(e) {
+      e.preventDefault();
+      const data = {
+        name: this.name.value,
+        score: parseInt(this.score.value)
+      };
+      const res = await fetch('http://localhost:6060/submit', {
+        method: 'POST',
+        headers: {'Content-Type': 'application/json'},
+        body: JSON.stringify(data)
+      });
+      document.getElementById('result').textContent = await res.text();
+    };
+  </script>
+</body>
+</html>

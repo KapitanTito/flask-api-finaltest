@@ -2,7 +2,7 @@ pipeline {
     agent any
 
     environment {
-        PROD_PATH = '/home/jenkins/flask-api-prod'    // путь куда будем деплоить "прод"
+        PROD_PATH = "/var/jenkins_home/flask-api-prod"    // путь куда будем деплоить "прод"
         APP_PATH = "${env.WORKSPACE}"                // путь к текущему коду (workspace Jenkins)
     }
 

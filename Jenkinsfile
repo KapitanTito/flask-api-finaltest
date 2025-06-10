@@ -32,7 +32,7 @@ pipeline {
                     // Создаём прод-папку если не существует
                     sh '''
                     mkdir -p ${PROD_PATH}
-                    rsync -av --exclude=pg_data --exclude=__pycache__ --exclude=.git --delete ${APP_PATH}/ ${PROD_PATH}/
+                    cp -rT ${APP_PATH} ${PROD_PATH}
                     '''
                 }
             }

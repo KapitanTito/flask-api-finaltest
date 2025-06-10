@@ -32,7 +32,8 @@ pipeline {
                     // Создаём прод-папку если не существует
                     sh '''
                     mkdir -p ${PROD_PATH}
-                    cp -rT ${APP_PATH} ${PROD_PATH}
+                    cp -r ${APP_PATH}/* ${PROD_PATH}/
+                    rm -rf ${PROD_PATH}/.git
                     '''
                 }
             }

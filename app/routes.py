@@ -37,4 +37,3 @@ def results():
         })
 
     return jsonify(out)
-

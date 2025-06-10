@@ -7,4 +7,3 @@ class Result(db.Model):
     name = db.Column(db.String(64), nullable=False)
     score = db.Column(db.Integer, nullable=False)
     timestamp = db.Column(db.DateTime, default=datetime.utcnow)
-

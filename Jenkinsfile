@@ -33,6 +33,8 @@ pipeline {
                                 fi
                                 cd ${REMOTE_PATH}
                                 git pull
+                                # Создаем .env, если он отсутствует
+                                [ -f .env ] || cp .env.example .env
                                 docker-compose down || true
                                 docker-compose up -d --build
                             '

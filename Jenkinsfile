@@ -32,8 +32,9 @@ pipeline {
                                     git clone https://github.com/KapitanTito/flask-api-finaltest.git ${REMOTE_PATH}
                                 fi
                                 cd ${REMOTE_PATH}
-                                git pull
-                                # Создаем .env, если он отсутствует
+                                git fetch origin
+                                git reset --hard origin/main
+                                # Создать .env, если отсутствует
                                 [ -f .env ] || cp .env.example .env
                                 docker-compose down || true
                                 docker-compose up -d --build

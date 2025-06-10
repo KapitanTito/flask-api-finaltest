@@ -32,7 +32,7 @@
         name: this.name.value,
         score: parseInt(this.score.value)
       };
-      const res = await fetch('http://localhost:6060/submit', {
+      const res = await fetch('http://localhost:5050/submit', {
         method: 'POST',
         headers: {'Content-Type': 'application/json'},
         body: JSON.stringify(data)

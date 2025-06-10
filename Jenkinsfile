@@ -30,8 +30,8 @@ pipeline {
                 script {
                     // Если нужен flake8, иначе просто "echo No tests"
                     sh """
-                        pip install flake8
-                        flake8 app/
+                        docker run --rm -v "$PWD:/app" -w /app python:3.10-slim \
+                            sh -c "pip install flake8 && flake8 app/"
                     """
                 }
             }

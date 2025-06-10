@@ -6,10 +6,11 @@ import os
 db = SQLAlchemy()
 migrate = Migrate()
 
+
 def create_app():
     app = Flask(__name__, static_folder='static')
 
-    # Настройка базы из переменных окружения или по дефолту
+    # Настройка базы из переменных окружения или дефолт
     app.config['SQLALCHEMY_DATABASE_URI'] = os.environ.get(
         'DATABASE_URL',
         'postgresql://postgres:postgres@db:5432/postgres'
@@ -19,8 +20,8 @@ def create_app():
     db.init_app(app)
     migrate.init_app(app, db)
 
-    # Импортируем routes только после создания app и db
-    from . import routes
-    app.register_blueprint(routes.bp)
+    # Импортируем и регистрируем Blueprint после инициализации app
+    from .routes import bp
+    app.register_blueprint(bp)
 
     return app

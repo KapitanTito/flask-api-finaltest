@@ -34,6 +34,7 @@ pipeline {
                     mkdir -p ${PROD_PATH}
                     cp -r ${APP_PATH}/* ${PROD_PATH}/
                     rm -rf ${PROD_PATH}/.git
+                    ls -lR ${PROD_PATH}/app/static/
                     '''
                 }
             }

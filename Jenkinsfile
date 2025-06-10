@@ -38,6 +38,8 @@ pipeline {
                                 [ -f .env ] || cp .env.example .env
                                 docker-compose down || true
                                 docker-compose up -d --build
+                                sleep 5
+                                docker-compose exec -T web flask db upgrade
                             '
                         """
                     }

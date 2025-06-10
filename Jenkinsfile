@@ -40,6 +40,13 @@ pipeline {
                                 docker-compose up -d --build
                                 sleep 5
                                 docker-compose exec -T web flask db upgrade
+                                if [ ! -d "migrations" ]; then
+                                    docker-compose exec -T web flask db init
+                                    docker-compose exec -T web flask db migrate -m "auto init"
+                                else
+                                    docker-compose exec -T web flask db migrate -m "auto migrate"
+                                fi
+                                docker-compose exec -T web flask db upgrade
                             '
                         """
                     }

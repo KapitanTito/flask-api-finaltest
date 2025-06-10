@@ -8,7 +8,7 @@ migrate = Migrate()
 
 
 def create_app():
-    app = Flask(__name__, static_folder='static')
+    app = Flask(__name__, static_folder="static", static_url_path="/static")
 
     # Настройка базы из переменных окружения или дефолт
     app.config['SQLALCHEMY_DATABASE_URI'] = os.environ.get(

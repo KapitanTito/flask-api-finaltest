@@ -2,12 +2,8 @@ pipeline {
     agent any
 
     environment {
-        REGISTRY = 'docker.io/yourdockerhubusername/flask-api'
-        IMAGE_TAG = "${env.BUILD_NUMBER}"
-        DOCKER_IMAGE = "${REGISTRY}:${IMAGE_TAG}"
-        SSH_USER = 'deployuser'
-        SSH_HOST = 'your.server.ip.address'
-        SSH_PATH = '/home/deployuser/flask-api'
+        PROD_PATH = '/home/jenkins/flask-api-prod'    // путь куда будем деплоить "прод"
+        APP_PATH = "${env.WORKSPACE}"                // путь к текущему коду (workspace Jenkins)
     }
 
     stages {
@@ -16,55 +12,39 @@ pipeline {
                 checkout scm
             }
         }
-
         stage('Build Docker Image') {
             steps {
                 script {
-                    sh "docker build -t ${DOCKER_IMAGE} ."
+                    sh 'docker build -t flask-api-local:latest .'
                 }
             }
         }
-
-        stage('Lint & Test') {
+        stage('Lint') {
             steps {
                 script {
-                    // Если нужен flake8, иначе просто "echo No tests"
-                    sh """
-                        docker run --rm -v $PWD:/app -w /app python:3.10-slim sh -c "pip install flake8 && flake8 app/"
-                    """
+                    sh 'pip install flake8 && flake8 app/'
                 }
             }
         }
-
-        stage('Docker Login') {
+        stage('Prepare Production Directory') {
             steps {
-                withCredentials([usernamePassword(credentialsId: 'dockerhub-credentials', usernameVariable: 'DOCKER_USER', passwordVariable: 'DOCKER_PASS')]) {
-                    sh 'echo $DOCKER_PASS | docker login -u $DOCKER_USER --password-stdin'
+                script {
+                    // Создаём прод-папку если не существует
+                    sh '''
+                    mkdir -p ${PROD_PATH}
+                    rsync -av --exclude=pg_data --exclude=__pycache__ --exclude=.git --delete ${APP_PATH}/ ${PROD_PATH}/
+                    '''
                 }
             }
         }
-
-        stage('Push Docker Image') {
+        stage('Deploy (docker-compose up)') {
             steps {
-                sh "docker push ${DOCKER_IMAGE}"
-            }
-        }
-
-        stage('Deploy to Remote Server') {
-            steps {
-                sshagent(['jenkins-ssh-key']) {
-                    // Останавливаем старый сервис, подтягиваем новый compose, поднимаем
+                script {
+                    // Запускаем (или перезапускаем) приложение на "прод" окружении
                     sh """
-                        ssh -o StrictHostKeyChecking=no ${SSH_USER}@${SSH_HOST} '
-                            set -e
-                            cd ${SSH_PATH}
-                            echo "Updating .env and docker-compose.yml if changed..."
-                            git pull || true
-                            sed -i "s|image: .*\$|image: ${DOCKER_IMAGE}|" docker-compose.yml
-                            docker-compose pull
-                            docker-compose down
-                            docker-compose up -d
-                        '
+                    cd ${PROD_PATH}
+                    docker-compose down || true
+                    docker-compose up -d --build
                     """
                 }
             }
@@ -74,11 +54,6 @@ pipeline {
     post {
         always {
             cleanWs()
-        }
-        failure {
-            mail to: 'your-email@example.com',
-                 subject: "Jenkins Pipeline Failed: ${env.JOB_NAME} [${env.BUILD_NUMBER}]",
-                 body: "Check Jenkins for details!"
         }
     }
 }

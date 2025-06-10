@@ -17,7 +17,7 @@ pipeline {
                 sh 'docker run --rm -v $WORKSPACE/app:/app flask-api-local:latest flake8 /app'
             }
         }
-        stage('Deploy to Remote') {
+        stage('Deploy to Remote (clean)') {
             steps {
                 withCredentials([
                     string(credentialsId: 'REMOTE_USER_ID', variable: 'REMOTE_USER'),
@@ -34,16 +34,14 @@ pipeline {
                                 cd ${REMOTE_PATH}
                                 git fetch origin
                                 git reset --hard origin/main
+                                # Удалить папку migrations и volume postgres
+                                rm -rf migrations
+                                docker-compose down -v || true
                                 # Создать .env, если отсутствует
                                 [ -f .env ] || cp .env.example .env
-                                docker-compose down || true
                                 docker-compose up -d --build
                                 sleep 5
-                                # Инициализировать migrations при первом запуске
-                                if [ ! -d "migrations" ]; then
-                                    docker-compose exec -T web flask db init
-                                fi
-                                # Всегда делать migrate/upgrade
+                                docker-compose exec -T web flask db init
                                 docker-compose exec -T web flask db migrate -m "auto migrate"
                                 docker-compose exec -T web flask db upgrade
                             '

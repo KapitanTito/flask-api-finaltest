@@ -22,7 +22,7 @@ pipeline {
         stage('Lint') {
             steps {
                 script {
-                    sh 'pip install flake8 && flake8 app/'
+                    sh 'docker run --rm -v $WORKSPACE/app:/app flask-api-local:latest flake8 /app'
                 }
             }
         }

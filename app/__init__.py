@@ -18,9 +18,9 @@ def create_app():
     Migrate(app, db)
 
     from .routes import bp
-
     app.register_blueprint(bp)
-    
+
+    @app.before_first_request
     def create_tables():
         db.create_all()
 
